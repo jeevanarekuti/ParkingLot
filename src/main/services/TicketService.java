@@ -6,6 +6,7 @@ import main.exceptions.GateNotFoundException;
 import main.models.*;
 import main.repositories.BillRepository;
 import main.repositories.GateRepository;
+import main.repositories.ParkingLotRepository;
 import main.repositories.TicketRepository;
 import main.strategy.pricing_strategy.PricingStrategy;
 import main.strategy.spotAssignment.SpotAssignmentStrategy;
@@ -21,15 +22,17 @@ public class TicketService {
     private VehicleService vehicleService;
     private PricingStrategyFactory pricingStrategyFactory;
     BillRepository billRepository;
+    private ParkingLotRepository parkingLotRepository;
 
 
-    public TicketService(SpotAssignmentStrategy spotAssignmentStrategy, GateService gateService, TicketRepository ticketRepository, VehicleService vehicleService, PricingStrategyFactory pricingStrategyFactory, BillRepository billRepository) {
+    public TicketService(SpotAssignmentStrategy spotAssignmentStrategy, GateService gateService, TicketRepository ticketRepository, VehicleService vehicleService, PricingStrategyFactory pricingStrategyFactory, BillRepository billRepository, ParkingLotRepository parkingLotRepository) {
         this.spotAssignmentStrategy = spotAssignmentStrategy;
         this.gateService = gateService;
         this.ticketRepository = ticketRepository;
         this.vehicleService = vehicleService;
         this.pricingStrategyFactory = pricingStrategyFactory;
         this.billRepository = billRepository;
+        this.parkingLotRepository = parkingLotRepository;
     }
 
     public TicketService(SpotAssignmentStrategy spotAssignmentStrategy, GateService gateService, TicketRepository ticketRepository, VehicleService vehicleService) {
@@ -53,7 +56,7 @@ public class TicketService {
         Spot spot;
 
         try {
-            spot = spotAssignmentStrategy.assignSpot(vehicle,gate);
+            spot = spotAssignmentStrategy.assignSpot(vehicle,gate,parkingLotRepository);
         } catch (Exception e) {
             throw e;
         }

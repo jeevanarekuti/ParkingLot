@@ -71,13 +71,13 @@ public class Main {
         VehicleRepository vechileRepository = new VehicleRepository();
 
 
-        SpotAssignmentStrategy spotAssignmentStrategy= new NearestSpotAssignmentStrategy(parkingLotRepository);
+        SpotAssignmentStrategy spotAssignmentStrategy= new NearestSpotAssignmentStrategy();
         GateService gateService = new GateService(gateRepository);
         VehicleService vehicleService = new VehicleService(vechileRepository);
 
         PricingStrategyFactory pricingStrategyFactory = new PricingStrategyFactory(basePriceRepository,slabRepository);
 
-        TicketService ticketService = new TicketService(spotAssignmentStrategy,gateService,ticketRepository,vehicleService,pricingStrategyFactory,new BillRepository());
+        TicketService ticketService = new TicketService(spotAssignmentStrategy,gateService,ticketRepository,vehicleService,pricingStrategyFactory,new BillRepository(),parkingLotRepository);
 
         TicketController ticketController = new TicketController(ticketService);
         GenerateTicketRequestDTO requestDTO = new GenerateTicketRequestDTO("123", VehicleType.CAR,1);

@@ -7,6 +7,12 @@ public class BaseModel {
     private Date insertAt;
     private Date updatedAt;
 
+    public BaseModel(int id, Date insertAt, Date updatedAt) {
+        this.id = id;
+        this.insertAt = insertAt;
+        this.updatedAt = updatedAt;
+    }
+
     public BaseModel(int id) {
         this.id = id;
         this.insertAt = new Date();

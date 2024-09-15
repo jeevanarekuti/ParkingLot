@@ -1,16 +1,18 @@
 package main;
 
+import main.controller.BillController;
 import main.controller.TicketController;
+import main.dtos.GenerateBillRequestDTO;
 import main.dtos.GenerateTicketRequestDTO;
 import main.exceptions.GateNotFoundException;
 import main.exceptions.NoParkingSpotsFoundException;
 import main.exceptions.ParkingLotDoesnotExist;
+import main.factories.PricingStrategyFactory;
 import main.models.*;
-import main.repositories.GateRepository;
-import main.repositories.ParkingLotRepository;
-import main.repositories.TicketRepository;
+import main.repositories.*;
 import main.services.GateService;
 import main.services.TicketService;
+import main.services.VehicleService;
 import main.strategy.spotAssignment.NearestSpotAssignmentStrategy;
 import main.strategy.spotAssignment.SpotAssignmentStrategy;
 
@@ -40,26 +42,51 @@ public class Main {
 
         ParkingLot parkingLot = new ParkingLot(new BaseModel(1),
                 Arrays.asList(floor1,floor2), Arrays.asList(gate1, gate2));
+
         Map<Integer, ParkingLot> parkingLotMap = new HashMap<Integer, ParkingLot>(){{
             put(parkingLot.getBaseModel().getId(), parkingLot);
         }};
 
+        BasePrice basePrice = new BasePrice(new BaseModel(1), VehicleType.CAR, 20, PriceType.WEEKEND);
 
+        Map<Integer, BasePrice> basePriceMap = new HashMap<Integer, BasePrice>(){{
+            put(basePrice.getBaseModel().getId(), basePrice);
+        }};
+        BasePriceRepository basePriceRepository  =new BasePriceRepository(basePriceMap);
+
+        Slab slab1 = new Slab(new BaseModel(1), VehicleType.CAR, PriceType.WEEKEND, 0, 2, 1.2);
+        Slab slab2 = new Slab(new BaseModel(2), VehicleType.CAR, PriceType.WEEKEND, 2, 6, 1.5);
+        Slab slab3 = new Slab(new BaseModel(3), VehicleType.CAR, PriceType.WEEKEND, 6, -1, 2);
+        Map<Integer, Slab> slabMap = new HashMap<Integer, Slab>(){{
+            put(slab1.getBaseModel().getId(), slab1);
+            put(slab2.getBaseModel().getId(), slab2);
+            put(slab3.getBaseModel().getId(), slab3);
+        }};
+        SlabRepository slabRepository = new SlabRepository(slabMap);
 
 
         GateRepository gateRepository = new GateRepository(gateMap);
         TicketRepository ticketRepository = new TicketRepository();
         ParkingLotRepository parkingLotRepository = new ParkingLotRepository(parkingLotMap);
+        VehicleRepository vechileRepository = new VehicleRepository();
+
 
         SpotAssignmentStrategy spotAssignmentStrategy= new NearestSpotAssignmentStrategy(parkingLotRepository);
-
         GateService gateService = new GateService(gateRepository);
+        VehicleService vehicleService = new VehicleService(vechileRepository);
 
-        TicketService ticketService = new TicketService(spotAssignmentStrategy,gateService,ticketRepository);
+        PricingStrategyFactory pricingStrategyFactory = new PricingStrategyFactory(basePriceRepository,slabRepository);
+
+        TicketService ticketService = new TicketService(spotAssignmentStrategy,gateService,ticketRepository,vehicleService,pricingStrategyFactory,new BillRepository());
+
         TicketController ticketController = new TicketController(ticketService);
-
         GenerateTicketRequestDTO requestDTO = new GenerateTicketRequestDTO("123", VehicleType.CAR,1);
         Ticket ticket = ticketController.generateTicket(requestDTO);
         System.out.println(ticket);
+
+
+        BillController billController = new BillController(ticketService);
+        Bill bill = billController.generateBill(new GenerateBillRequestDTO(ticket));
+        System.out.println(bill);
     }
 }

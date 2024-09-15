@@ -7,17 +7,21 @@ import main.repositories.ParkingLotRepository;
 
 public class NearestSpotAssignmentStrategy implements SpotAssignmentStrategy{
 
-    private ParkingLotRepository repository;
+    //TODO get parking details from repo not from strategy.
+    private ParkingLotRepository parkingLotRepository;
 
     public NearestSpotAssignmentStrategy(ParkingLotRepository repository) {
-        this.repository = repository;
+        this.parkingLotRepository = repository;
     }
 
     @Override
-    public Spot assignSpot(VehicleType vehicleType, Gate gate) throws NoParkingSpotsFoundException, ParkingLotDoesnotExist {
-        ParkingLot parkingLot = repository.getParkingLotByGateId(gate.getBaseModel().getId());
+    public Spot assignSpot(Vehicle vehicle, Gate gate) throws NoParkingSpotsFoundException, ParkingLotDoesnotExist {
+        //TODO read and implement template Pattern here.
+        ParkingLot parkingLot = parkingLotRepository.getParkingLotByGateId(gate.getBaseModel().getId());
         if(parkingLot!=null){
-            return getAvailableSpot(parkingLot,vehicleType);
+            Spot assignedSpot =  getAvailableSpot(parkingLot,vehicle.getVehicleType());
+            assignedSpot.allocateSpot(vehicle);
+            return assignedSpot;
         }
         throw new ParkingLotDoesnotExist();
     }

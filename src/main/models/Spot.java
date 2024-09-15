@@ -31,16 +31,17 @@ public class Spot {
         return vehicle;
     }
 
+
+    public VehicleType getSupportedVehicleType() {
+        return supportedVehicleType;
+    }
+
     public void setVehicle(Vehicle vehicle) {
         this.vehicle = vehicle;
     }
 
     public void setStatus(SpotStatus status) {
         this.status = status;
-    }
-
-    public VehicleType getSupportedVehicleType() {
-        return supportedVehicleType;
     }
 
     @Override
@@ -52,5 +53,10 @@ public class Spot {
                 ", vehicle=" + vehicle +
                 ", supportedVehicleType=" + supportedVehicleType +
                 '}';
+    }
+
+    public void allocateSpot(Vehicle vehicle) {
+        this.vehicle = vehicle;
+        this.status = SpotStatus.OCCUPIED;
     }
 }
